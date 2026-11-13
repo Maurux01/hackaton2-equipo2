@@ -201,9 +201,11 @@ public class Main {
                         break;
 
                     case 13:
-                        System.out.println("\n--- Cierre del dia ---");
-                        System.out.println("Total de pedidos: " + service.getPedidos().size());
-                        System.out.println("Estado lluvia: " + (service.isModoLluvia() ? "Activado" : "Desactivado"));
+                        try {
+                            service.realizarCierreDelDia(); // O usa domiService, dependiendo de cómo la hayas declarado arriba en el Main
+                        } catch (Exception e) {
+                            System.out.println("Error al generar el cierre del día: " + e.getMessage());
+                        }
                         break;
 
                     case 0:
