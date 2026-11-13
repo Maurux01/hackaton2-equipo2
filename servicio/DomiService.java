@@ -142,6 +142,75 @@ public class DomiService {
         }
         clientes.remove(cedula);
     }
+
+    //Metodo cierre del dia
+
+    public void realizarCierreDelDia() {
+        int totalPedidos = pedidos.size();
+        int entregados = 0;
+        int cancelados = 0;
+        int enCamino = 0;
+        double ingresosTotales = 0;
+        double ingresosBicis = 0;
+        double ingresosMotos = 0;
+        double ingresosCarros = 0;
+
+        for (Pedido p : pedidos) {
+            switch (p.getEstado()) {
+                case ENTREGADO:
+                    entregados++;
+                    ingresosTotales += p.getCosto();
+
+                    // Sumar según el tipo de vehículo de forma directa
+                    if (p.getRepartidorAsignado() instanceof Bici) {
+                        ingresosBicis += p.getCosto();
+                    } else if (p.getRepartidorAsignado() instanceof Moto) {
+                        ingresosMotos += p.getCosto();
+                    } else if (p.getRepartidorAsignado() instanceof Carro) {
+                        ingresosCarros += p.getCosto();
+                    }
+                    break;
+                case CANCELADO:
+                    cancelados++;
+                    break;
+                case EN_CAMINO:
+                    enCamino++;
+                    break;
+            }
+        }
+
+        // Para buscar al repartidor estrella
+        Repartidor estrella = null;
+        double mejorPromedio = -1;
+
+        for (Repartidor r : repartidores) {
+            double promedio = r.getPromedio(); // Se usa el metodo que ya tiene la interfaz Calificable
+
+            if (promedio > mejorPromedio && promedio > 0) {
+                mejorPromedio = promedio;
+                estrella = r;
+            }
+        }
+
+        // Imprimir el reporte completo en la consola
+        System.out.println("=== CIERRE DEL DÍA ===");
+        System.out.println("Total de pedidos: " + totalPedidos);
+        System.out.println("- Entregados: " + entregados);
+        System.out.println("- Cancelados: " + cancelados);
+        System.out.println("- En camino: " + enCamino);
+        System.out.println("Ingresos totales: $" + ingresosTotales);
+        System.out.println("  - Bicis: $" + ingresosBicis);
+        System.out.println("  - Motos: $" + ingresosMotos);
+        System.out.println("  - Carros: $" + ingresosCarros);
+
+        // Imprimir el resultado del repartidor estrella
+        if (estrella != null) {
+            System.out.println("Repartidor estrella: " + estrella.getNombre() + " (Promedio: " + mejorPromedio + ")");
+        } else {
+            System.out.println("Repartidor estrella: Aún no hay repartidores calificados.");
+        }
+    }
+
     // ===== FIN PASO 4 =====
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
@@ -156,4 +225,6 @@ public class DomiService {
     public HashSet<String> getBarrios() { return barrios; }
     public HashMap<String, Double> getDistancias() { return distancias; }
     public HashMap<String, Cliente> getClientes() { return clientes; }
+
+
 }
