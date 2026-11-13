@@ -50,6 +50,11 @@ public abstract class Repartidor {
         return "Repartidor [Código: " + codigo + ", Nombre: " + nombre + ", Disponible: " + (disponible ? "Sí" : "No") + "]";
     }
 
+    // Comportamientos abstractos - Se ponene abstractos por los costos tiempo y el llevar varian en el vehiculo, barrio etc.
+    public abstract double calcularCosto(double km);
+    public abstract  double calcularTiempo(double km);
+    public abstract  boolean puedeLlevar(double km, boolean esGrande);
+
 
 }
 
