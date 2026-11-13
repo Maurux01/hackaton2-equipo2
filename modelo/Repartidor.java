@@ -26,7 +26,7 @@ public abstract class Repartidor {
         return disponible;
     }
 
-    //los setters
+    //los setters con validaciones
     public void setCodigo(String codigo) {
         if (codigo == null || codigo.trim().isEmpty()) {
             throw new IllegalArgumentException("El código no puede estar vacío.");
@@ -49,6 +49,13 @@ public abstract class Repartidor {
     public String toString() {
         return "Repartidor [Código: " + codigo + ", Nombre: " + nombre + ", Disponible: " + (disponible ? "Sí" : "No") + "]";
     }
+
+    // Comportamientos abstractos - Se ponene abstractos por los costos tiempo y el llevar varian en el vehiculo, barrio etc.
+    public abstract double calcularCosto(double km);
+    public abstract  double calcularTiempo(double km);
+    public abstract  boolean puedeLlevar(double km, boolean esGrande);
+
+
 }
 
 

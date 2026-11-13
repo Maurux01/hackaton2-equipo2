@@ -41,11 +41,98 @@ public class DomiService {
         repartidores.add(new Moto("R-02", "Andrés Mejía", true));
         repartidores.add(new Carro("R-03", "Jorge Pardo", true));
     }
-
+// Crear pedido (opción 8)
     private void cargarClientes() {
         clientes.put("1020304050", new Cliente("1020304050", "Laura Gómez", "3001234567", "Teusaquillo", "Cra 1 #1"));
         clientes.put("1030405060", new Cliente("1030405060", "Mateo Rincón", "3109876543", "Usaquén", "Cra 2 #2"));
     }
+
+    public Pedido crearPedido(String cedula, String descripcion, boolean grande) {
+        Cliente cliente = clientes.get(cedula);
+        if (cliente == null) {
+            throw new IllegalArgumentException("No existe un cliente con esa cedula.");
+        }
+        double km = distanciaDe(cliente.getBarrio());
+
+        Repartidor mejor = null;
+        double mejorCosto = 0;
+        double mejorTiempo = 0;
+        boolean primero = true;
+
+        for (Repartidor r : repartidores) {
+            if (!r.isDisponible()) continue;
+            if (!r.puedeLlevar(km, grande)) continue;
+
+            double costo = r.calcularCosto(km);
+            double tiempo = r.calcularTiempo(km);
+
+            // Aplicar lluvia si está activa (nivel operación): +20% costo y bicis no disponibles
+            if (modoLluvia) {
+                if (r instanceof Bici) continue; // bici no vuela con lluvia
+                costo = costo * 1.20;
+            }
+
+            if (primero || costo < mejorCosto
+                    || (costo == mejorCosto && tiempo < mejorTiempo)) {
+                mejor = r;
+                mejorCosto = costo;
+                mejorTiempo = tiempo;
+                primero = false;
+            }
+        }
+
+        if (mejor == null) {
+            return null; // ningún repartidor puede llevarlo
+        }
+
+        mejor.setDisponible(false);
+        int numero = siguienteNumeroPedido++;
+        Pedido pedido = new Pedido(numero, cliente, descripcion, grande, km,
+                mejor, mejorCosto, mejorTiempo, "EN_CAMINO");
+        pedidos.add(pedido);
+        return pedido;
+    }
+
+    // ===== PASO 4 (Valentina): entregar, cancelar y regla de eliminar cliente =====
+    private Pedido buscarPedido(int numero) {
+        for (Pedido p : pedidos) {
+            if (p.getNumero() == numero) {
+                return p;
+            }
+        }
+        throw new IllegalArgumentException("No existe un pedido con el número " + numero);
+    }
+
+    public void entregarPedido(int numero) {
+        Pedido pedido = buscarPedido(numero);
+        if (pedido.getEstado() != EstadoPedido.EN_CAMINO) {
+            throw new IllegalArgumentException(
+                    "No se puede entregar: el pedido está " + pedido.getEstado());
+        }
+        pedido.setEstado(EstadoPedido.ENTREGADO);
+        pedido.getRepartidor().setDisponible(true);
+    }
+
+    public void cancelarPedido(int numero) {
+        Pedido pedido = buscarPedido(numero);
+        if (pedido.getEstado() != EstadoPedido.EN_CAMINO) {
+            throw new IllegalArgumentException(
+                    "No se puede cancelar: el pedido está " + pedido.getEstado());
+        }
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        pedido.getRepartidor().setDisponible(true);
+    }
+
+    public boolean clienteTienePedidoEnCamino(String cedula) {
+        for (Pedido p : pedidos) {
+            if (p.getCliente().getCedula().equals(cedula)
+                    && p.getEstado() == EstadoPedido.EN_CAMINO) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // ===== FIN PASO 4 =====
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
     public double distanciaDe(String barrio) { return distancias.get(barrio); }
