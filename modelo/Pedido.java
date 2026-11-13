@@ -14,7 +14,7 @@ public class Pedido {
     private EstadoPedido estado; // EN_CAMINO, ENTREGADO, CANCELADO
 
     public Pedido(Cliente cliente, String descripcion, boolean esGrande, double km, Repartidor repartidorAsignado, double costo, double tiempo) {
-        this.numero = contadorPedidos++; // Asigna el consecutivo y avanza el contador
+        this.numero = contadorPedidos++;
         this.cliente = cliente;
         this.descripcion = descripcion;
         this.esGrande = esGrande;
@@ -22,7 +22,22 @@ public class Pedido {
         this.repartidorAsignado = repartidorAsignado;
         this.costo = costo;
         this.tiempo = tiempo;
-        this.estado = EstadoPedido.EN_CAMINO; // nace por defecto EN_CAMINO
+        this.estado = EstadoPedido.EN_CAMINO;
+    }
+
+    public Pedido(int numero, Cliente cliente, String descripcion, boolean esGrande, double km, Repartidor repartidorAsignado, double costo, double tiempo, String estadoStr) {
+        this.numero = numero;
+        this.cliente = cliente;
+        this.descripcion = descripcion;
+        this.esGrande = esGrande;
+        this.km = km;
+        this.repartidorAsignado = repartidorAsignado;
+        this.costo = costo;
+        this.tiempo = tiempo;
+        this.estado = EstadoPedido.EN_CAMINO;
+        if (numero >= contadorPedidos) {
+            contadorPedidos = numero + 1;
+        }
     }
 
     // Getters
@@ -50,6 +65,11 @@ public class Pedido {
         return repartidorAsignado;
     }
 
+    // Alias para compatibilidad con DomiService
+    public Repartidor getRepartidor() {
+        return repartidorAsignado;
+    }
+
     public double getCosto() {
         return costo;
     }
@@ -68,5 +88,13 @@ public class Pedido {
             throw new IllegalArgumentException("El estado no puede ser nulo.");
         }
         this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Pedido #" + numero + " [" + estado + "] - Cliente: " + (cliente != null ? cliente.getNombre() : "") +
+                " (" + (cliente != null ? cliente.getBarrio() : "") + ") - Repartidor: " +
+                (repartidorAsignado != null ? repartidorAsignado.getNombre() : "N/A") +
+                " - Costo: $" + Math.round(costo) + " - Tiempo: " + Math.round(tiempo) + " min";
     }
 }
