@@ -25,6 +25,21 @@ public class Pedido {
         this.estado = EstadoPedido.EN_CAMINO;
     }
 
+    public Pedido(int numero, Cliente cliente, String descripcion, boolean esGrande, double km, Repartidor repartidorAsignado, double costo, double tiempo, EstadoPedido estado) {
+        this.numero = numero;
+        this.cliente = cliente;
+        this.descripcion = descripcion;
+        this.esGrande = esGrande;
+        this.km = km;
+        this.repartidorAsignado = repartidorAsignado;
+        this.costo = costo;
+        this.tiempo = tiempo;
+        this.estado = (estado != null) ? estado : EstadoPedido.EN_CAMINO;
+        if (numero >= contadorPedidos) {
+            contadorPedidos = numero + 1;
+        }
+    }
+
     public Pedido(int numero, Cliente cliente, String descripcion, boolean esGrande, double km, Repartidor repartidorAsignado, double costo, double tiempo, String estadoStr) {
         this.numero = numero;
         this.cliente = cliente;
@@ -34,7 +49,11 @@ public class Pedido {
         this.repartidorAsignado = repartidorAsignado;
         this.costo = costo;
         this.tiempo = tiempo;
-        this.estado = EstadoPedido.EN_CAMINO;
+        try {
+            this.estado = (estadoStr != null) ? EstadoPedido.valueOf(estadoStr.trim().toUpperCase()) : EstadoPedido.EN_CAMINO;
+        } catch (IllegalArgumentException e) {
+            this.estado = EstadoPedido.EN_CAMINO;
+        }
         if (numero >= contadorPedidos) {
             contadorPedidos = numero + 1;
         }
@@ -88,6 +107,13 @@ public class Pedido {
             throw new IllegalArgumentException("El estado no puede ser nulo.");
         }
         this.estado = estado;
+    }
+
+    public void setEstado(String estadoStr) {
+        if (estadoStr == null || estadoStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("El estado no puede ser nulo.");
+        }
+        this.estado = EstadoPedido.valueOf(estadoStr.trim().toUpperCase());
     }
 
     @Override

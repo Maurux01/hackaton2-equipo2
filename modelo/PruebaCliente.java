@@ -1,3 +1,5 @@
+package modelo;
+
 public class PruebaCliente {
 
     public static void main(String[] args) {

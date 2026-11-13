@@ -11,14 +11,14 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int opcion = -1;
 
-        // Bucle para repetir el menú hasta que el usuario elija 0
+        // Bucle para que se repita y el usuario elija
         while (opcion != 0) {
             try {
                 System.out.println("\n==================================");
                 System.out.println("        DOMI - OPERADOR           ");
                 System.out.println("==================================");
                 if (service.isModoLluvia()) {
-                    System.out.println("  *** MODO LLUVIA ACTIVO ***");
+                    System.out.println("  MODO LLUVIA ACTIVO");
                 }
                 System.out.println("CLIENTE:     1. Registrar  2. Listar");
                 System.out.println("             3. Editar     4. Eliminar");
@@ -68,7 +68,8 @@ public class Main {
                             System.out.println("No hay clientes registrados.");
                         } else {
                             for (Cliente c : service.getClientes().values()) {
-                                System.out.println("Cedula: " + c.getCedula() + " | Nombre: " + c.getNombre() + " | Barrio: " + c.getBarrio());
+                                System.out.println("Cedula: " + c.getCedula() + " | Nombre: " + c.getNombre()
+                                        + " | Barrio: " + c.getBarrio());
                             }
                         }
                         break;
@@ -108,13 +109,7 @@ public class Main {
                     case 4:
                         System.out.print("Ingresa la cedula a eliminar: ");
                         String cedElim = scanner.nextLine().trim();
-                        if (!service.existeCliente(cedElim)) {
-                            throw new IllegalArgumentException("El cliente no existe.");
-                        }
-                        if (service.clienteTienePedidoEnCamino(cedElim)) {
-                            throw new IllegalArgumentException("No se puede eliminar: el cliente tiene pedidos EN_CAMINO.");
-                        }
-                        service.getClientes().remove(cedElim);
+                        service.eliminarCliente(cedElim);
                         System.out.println("Cliente eliminado del sistema.");
                         break;
 
@@ -144,7 +139,7 @@ public class Main {
                             System.out.println("No hay repartidores.");
                         } else {
                             for (Repartidor r : service.getRepartidores()) {
-                                System.out.println(r.getCodigo() + " - " + r.getNombre() + " (Disponible: " + (r.isDisponible() ? "SI" : "NO") + ")");
+                                System.out.println(r);
                             }
                         }
                         break;
@@ -179,22 +174,24 @@ public class Main {
 
                         Pedido pedidoCreado = service.crearPedido(cedPed, descPed, esGrande);
                         if (pedidoCreado == null) {
-                            throw new IllegalArgumentException("No hay repartidores disponibles para este pedido.");
+                            throw new IllegalArgumentException("No hay repartidores disponibles para este pedido (por distancia, tamano o lluvia).");
                         }
-                        System.out.println("\n[EXITO] Pedido creado y asignado:");
-                        System.out.println("Numero pedido : #" + pedidoCreado.getNumero());
-                        System.out.println("Cliente       : " + pedidoCreado.getCliente().getNombre() + " (" + pedidoCreado.getCliente().getBarrio() + ")");
-                        System.out.println("Repartidor    : " + pedidoCreado.getRepartidorAsignado().getNombre() + " [" + pedidoCreado.getRepartidorAsignado().getCodigo() + "]");
-                        System.out.println("Costo total   : $" + Math.round(pedidoCreado.getCosto()));
-                        System.out.println("Tiempo est.   : " + Math.round(pedidoCreado.getTiempo()) + " min");
+                        System.out.println("\n[EXITO] Pedido cotizado y asignado:");
+                        System.out.println("Numero de pedido : #" + pedidoCreado.getNumero());
+                        System.out.println("Cliente          : " + pedidoCreado.getCliente().getNombre() + " (" + pedidoCreado.getCliente().getBarrio() + ")");
+                        System.out.println("Repartidor       : " + pedidoCreado.getRepartidorAsignado().getNombre() + " [" + pedidoCreado.getRepartidorAsignado().getCodigo() + "]");
+                        System.out.println("Costo total      : $" + Math.round(pedidoCreado.getCosto()));
+                        System.out.println("Tiempo estimado  : " + Math.round(pedidoCreado.getTiempo()) + " min");
                         break;
                     }
 
                     case 9: {
                         System.out.print("Numero de pedido a entregar: ");
                         int numEntregar = Integer.parseInt(scanner.nextLine().trim());
-                        service.entregarPedido(numEntregar);
-                        System.out.println("Pedido #" + numEntregar + " entregado exitosamente. Repartidor liberado.");
+                        System.out.print("Calificacion del servicio (1 a 5 estrellas): ");
+                        int calif = Integer.parseInt(scanner.nextLine().trim());
+                        service.entregarPedido(numEntregar, calif);
+                        System.out.println("Pedido #" + numEntregar + " entregado exitosamente y repartidor calificado. Repartidor liberado.");
                         break;
                     }
 
@@ -207,7 +204,7 @@ public class Main {
                     }
 
                     case 11:
-                        System.out.println("\n--- Lista de Pedidos ---");
+                        System.out.println("\n--- Pedidos ---");
                         if (service.getPedidos().isEmpty()) {
                             System.out.println("No hay pedidos en la lista.");
                         } else {
@@ -224,9 +221,7 @@ public class Main {
                     }
 
                     case 13:
-                        System.out.println("\n--- Cierre del dia ---");
-                        System.out.println("Total de pedidos: " + service.getPedidos().size());
-                        System.out.println("Estado lluvia: " + (service.isModoLluvia() ? "Activado" : "Desactivado"));
+                        service.realizarCierreDelDia();
                         break;
 
                     case 0:
@@ -242,10 +237,10 @@ public class Main {
                 // si el usuario escribe letras donde va un numero
                 System.out.println("Error: Ingresaste un valor no numerico. Intenta de nuevo.");
             } catch (IllegalArgumentException e) {
-                // Validaciones del modelo o servicio
+                // validaciones de la cedula repetida, barrio sin cobertura, calificaciones 1-5, estados
                 System.out.println("Validacion: " + e.getMessage());
             } catch (Exception e) {
-                // Error general para que no se caiga
+                // error general para que no se caiga
                 System.out.println("Ocurrio un error inesperado: " + e.getMessage());
             }
         }
