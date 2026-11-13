@@ -98,7 +98,7 @@ Solo se creó la clase `Dron` y se agregó la opción "Dron" al registrar un rep
 
 ## 🎬 Video demo
 
-Link: _pendiente de subir (YouTube oculto o Google Drive)_
+Link: https://drive.google.com/file/d/1PEQhSjpTbz_0RZZe5V_WtLlEDdUsm98b/view?usp=sharing
 
 ---
 
