@@ -166,9 +166,12 @@ public class DomiService {
         clientes.remove(cedula);
     }
 
+
     // =========================================================================
     // CIERRE DEL DÍA (Checkpoint 3 - Nivel Operación real)
     // =========================================================================
+    //Metodo cierre del dia
+
     public void realizarCierreDelDia() {
         int totalPedidos = pedidos.size();
         int entregados = 0;
@@ -185,11 +188,18 @@ public class DomiService {
                     entregados++;
                     ingresosTotales += p.getCosto();
 
+
                     if (p.getRepartidor() instanceof Bici) {
                         ingresosBicis += p.getCosto();
                     } else if (p.getRepartidor() instanceof Moto) {
                         ingresosMotos += p.getCosto();
                     } else if (p.getRepartidor() instanceof Carro) {
+                    // Sumar según el tipo de vehículo de forma directa
+                    if (p.getRepartidorAsignado() instanceof Bici) {
+                        ingresosBicis += p.getCosto();
+                    } else if (p.getRepartidorAsignado() instanceof Moto) {
+                        ingresosMotos += p.getCosto();
+                    } else if (p.getRepartidorAsignado() instanceof Carro) {
                         ingresosCarros += p.getCosto();
                     }
                     break;
@@ -202,7 +212,9 @@ public class DomiService {
             }
         }
 
+
         // Buscar al repartidor estrella (mejor promedio con al menos 1 calificación)
+        // Para buscar al repartidor estrella
         Repartidor estrella = null;
         double mejorPromedio = -1;
 
@@ -237,6 +249,35 @@ public class DomiService {
         }
         System.out.println("==================================");
     }
+            double promedio = r.getPromedio(); // Se usa el metodo que ya tiene la interfaz Calificable
+
+            if (promedio > mejorPromedio && promedio > 0) {
+                mejorPromedio = promedio;
+                estrella = r;
+            }
+        }
+
+        // Imprimir el reporte completo en la consola
+        System.out.println("=== CIERRE DEL DÍA ===");
+        System.out.println("Total de pedidos: " + totalPedidos);
+        System.out.println("- Entregados: " + entregados);
+        System.out.println("- Cancelados: " + cancelados);
+        System.out.println("- En camino: " + enCamino);
+        System.out.println("Ingresos totales: $" + ingresosTotales);
+        System.out.println("  - Bicis: $" + ingresosBicis);
+        System.out.println("  - Motos: $" + ingresosMotos);
+        System.out.println("  - Carros: $" + ingresosCarros);
+
+        // Imprimir el resultado del repartidor estrella
+        if (estrella != null) {
+            System.out.println("Repartidor estrella: " + estrella.getNombre() + " (Promedio: " + mejorPromedio + ")");
+        } else {
+            System.out.println("Repartidor estrella: Aún no hay repartidores calificados.");
+        }
+    }
+
+    // ===== FIN PASO 4 =====
+
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
     public double distanciaDe(String barrio) { return distancias.get(barrio); }
@@ -250,4 +291,10 @@ public class DomiService {
     public HashSet<String> getBarrios() { return barrios; }
     public HashMap<String, Double> getDistancias() { return distancias; }
     public HashMap<String, Cliente> getClientes() { return clientes; }
+
 }
+
+
+
+}
+

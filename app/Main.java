@@ -221,7 +221,15 @@ public class Main {
                     }
 
                     case 13:
+
                         service.realizarCierreDelDia();
+
+                        try {
+                            service.realizarCierreDelDia(); // O usa domiService, dependiendo de cómo la hayas declarado arriba en el Main
+                        } catch (Exception e) {
+                            System.out.println("Error al generar el cierre del día: " + e.getMessage());
+                        }
+
                         break;
 
                     case 0:
