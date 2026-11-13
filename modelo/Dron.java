@@ -26,9 +26,7 @@ public class Dron extends Repartidor {
         return !esGrande && km <= DISTANCIA_MAX;
     }
 
-    // El dron no vuela con lluvia.
-    // Sin @Override a propósito: así compila ahora, y cuando Repartidor
-    // tenga soportaLluvia() este método pasa a sobrescribirlo solo.
+    @Override
     public boolean soportaLluvia() {
         return false;
     }

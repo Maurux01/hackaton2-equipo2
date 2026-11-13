@@ -49,10 +49,13 @@ public class Pedido {
         this.repartidorAsignado = repartidorAsignado;
         this.costo = costo;
         this.tiempo = tiempo;
+        if (estadoStr == null || estadoStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("El estado no puede ser nulo.");
+        }
         try {
-            this.estado = (estadoStr != null) ? EstadoPedido.valueOf(estadoStr.trim().toUpperCase()) : EstadoPedido.EN_CAMINO;
+            this.estado = EstadoPedido.valueOf(estadoStr.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            this.estado = EstadoPedido.EN_CAMINO;
+            throw new IllegalArgumentException("Estado no valido. Use EN_CAMINO, ENTREGADO o CANCELADO.");
         }
         if (numero >= contadorPedidos) {
             contadorPedidos = numero + 1;
@@ -121,6 +124,6 @@ public class Pedido {
         return "Pedido #" + numero + " [" + estado + "] - Cliente: " + (cliente != null ? cliente.getNombre() : "") +
                 " (" + (cliente != null ? cliente.getBarrio() : "") + ") - Repartidor: " +
                 (repartidorAsignado != null ? repartidorAsignado.getNombre() : "N/A") +
-                " - Costo: $" + Math.round(costo) + " - Tiempo: " + Math.round(tiempo) + " min";
+                " - Costo: $" + Math.round(costo) + " - Tiempo: " + ((tiempo == Math.round(tiempo)) ? (Math.round(tiempo) + " min") : String.format(java.util.Locale.US, "%.1f min", tiempo));
     }
 }

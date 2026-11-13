@@ -118,8 +118,14 @@ public class Main {
                         String cod = scanner.nextLine().trim();
                         System.out.print("Nombre: ");
                         String nomRep = scanner.nextLine().trim();
-                        System.out.print("Tipo (1. Bici, 2. Moto, 3. Carro): ");
+                        System.out.print("Tipo (1. Bici, 2. Moto, 3. Carro, 4. Dron): ");
                         int tipo = Integer.parseInt(scanner.nextLine().trim());
+
+                        for (Repartidor r : service.getRepartidores()) {
+                            if (r.getCodigo().equalsIgnoreCase(cod)) {
+                                throw new IllegalArgumentException("Ya existe un repartidor con ese codigo.");
+                            }
+                        }
 
                         if (tipo == 1) {
                             service.getRepartidores().add(new Bici(cod, nomRep));
@@ -127,8 +133,10 @@ public class Main {
                             service.getRepartidores().add(new Moto(cod, nomRep));
                         } else if (tipo == 3) {
                             service.getRepartidores().add(new Carro(cod, nomRep));
+                        } else if (tipo == 4) {
+                            service.getRepartidores().add(new Dron(cod, nomRep));
                         } else {
-                            throw new IllegalArgumentException("Tipo de vehiculo no valido. Usa 1, 2 o 3.");
+                            throw new IllegalArgumentException("Tipo de vehiculo no valido. Usa 1, 2, 3 o 4.");
                         }
                         System.out.println("Repartidor registrado.");
                         break;
@@ -180,8 +188,12 @@ public class Main {
                         System.out.println("Numero de pedido : #" + pedidoCreado.getNumero());
                         System.out.println("Cliente          : " + pedidoCreado.getCliente().getNombre() + " (" + pedidoCreado.getCliente().getBarrio() + ")");
                         System.out.println("Repartidor       : " + pedidoCreado.getRepartidorAsignado().getNombre() + " [" + pedidoCreado.getRepartidorAsignado().getCodigo() + "]");
+                        double tiempoPed = pedidoCreado.getTiempo();
+                        String tiempoStr = (tiempoPed == Math.round(tiempoPed))
+                                ? Math.round(tiempoPed) + " min"
+                                : String.format(java.util.Locale.US, "%.1f min", tiempoPed);
                         System.out.println("Costo total      : $" + Math.round(pedidoCreado.getCosto()));
-                        System.out.println("Tiempo estimado  : " + Math.round(pedidoCreado.getTiempo()) + " min");
+                        System.out.println("Tiempo estimado  : " + tiempoStr);
                         break;
                     }
 
@@ -221,15 +233,11 @@ public class Main {
                     }
 
                     case 13:
-
-                        service.realizarCierreDelDia();
-
                         try {
-                            service.realizarCierreDelDia(); // O usa domiService, dependiendo de cómo la hayas declarado arriba en el Main
+                            service.realizarCierreDelDia();
                         } catch (Exception e) {
                             System.out.println("Error al generar el cierre del día: " + e.getMessage());
                         }
-
                         break;
 
                     case 0:
