@@ -68,7 +68,7 @@ public class DomiService {
 
             // Aplicar lluvia si está activa (nivel operación): +20% costo y bicis no disponibles
             if (modoLluvia) {
-                if (r instanceof Bici) continue; // bici no vuela con lluvia
+                if (!r.soportaLluvia()) continue; // Polimórfico (cero instanceof)
                 costo = costo * 1.20;
             }
 

@@ -21,4 +21,9 @@ public class Bici extends Repartidor {
         //si son 5km o menos Y no lleva pedidos grandes
         return km <= 5 && !esGrande ;
     }
+
+    @Override
+    public boolean soportaLluvia() {
+        return false;
+    }
 }
