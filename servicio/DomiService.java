@@ -64,13 +64,12 @@ public class DomiService {
 
         for (Repartidor r : repartidores) {
             if (!r.isDisponible()) continue;
-            if (modoLluvia && !r.soportaLluvia()) continue; // Polimórfico (cero instanceof)
-            if (!r.puedeLlevar(km, grande)) continue;       // Polimórfico
+            if (modoLluvia && !r.soportaLluvia()) continue;
+            if (!r.puedeLlevar(km, grande)) continue;
 
             double costo = r.calcularCosto(km);
             double tiempo = r.calcularTiempo(km);
 
-            // Aplicar lluvia: +20% costo y bicis descartadas arriba
             if (modoLluvia) {
                 costo = costo * 1.20;
             }
@@ -85,7 +84,7 @@ public class DomiService {
         }
 
         if (mejor == null) {
-            return null; // ningún repartidor puede llevarlo
+            return null;
         }
 
         mejor.setDisponible(false);
@@ -97,7 +96,7 @@ public class DomiService {
     }
 
     // =========================================================================
-    // ENTREGAR, CANCELAR Y CALIFICAR (Checkpoint 2 y 3)
+    // ENTREGAR, CANCELAR
     // =========================================================================
     private Pedido buscarPedido(int numero) {
         for (Pedido p : pedidos) {
@@ -115,7 +114,7 @@ public class DomiService {
                     "No se puede entregar: el pedido #" + numero + " ya está " + pedido.getEstado());
         }
         if (pedido.getRepartidor() != null) {
-            pedido.getRepartidor().recibirCalificacion(calificacion); // Valida que esté entre 1 y 5
+            pedido.getRepartidor().recibirCalificacion(calificacion);
             pedido.getRepartidor().setDisponible(true);
         }
         pedido.setEstado(EstadoPedido.ENTREGADO);
@@ -166,12 +165,9 @@ public class DomiService {
         clientes.remove(cedula);
     }
 
-
     // =========================================================================
-    // CIERRE DEL DÍA (Checkpoint 3 - Nivel Operación real)
+    // CIERRE DEL DÍA
     // =========================================================================
-    //Metodo cierre del dia
-
     public void realizarCierreDelDia() {
         int totalPedidos = pedidos.size();
         int entregados = 0;
@@ -181,26 +177,22 @@ public class DomiService {
         double ingresosBicis = 0;
         double ingresosMotos = 0;
         double ingresosCarros = 0;
+        double ingresosDrones = 0;
 
         for (Pedido p : pedidos) {
             switch (p.getEstado()) {
                 case ENTREGADO:
                     entregados++;
                     ingresosTotales += p.getCosto();
-
-
-                    if (p.getRepartidor() instanceof Bici) {
+                    Repartidor rep = p.getRepartidor();
+                    if (rep instanceof Bici) {
                         ingresosBicis += p.getCosto();
-                    } else if (p.getRepartidor() instanceof Moto) {
+                    } else if (rep instanceof Moto) {
                         ingresosMotos += p.getCosto();
-                    } else if (p.getRepartidor() instanceof Carro) {
-                    // Sumar según el tipo de vehículo de forma directa
-                    if (p.getRepartidorAsignado() instanceof Bici) {
-                        ingresosBicis += p.getCosto();
-                    } else if (p.getRepartidorAsignado() instanceof Moto) {
-                        ingresosMotos += p.getCosto();
-                    } else if (p.getRepartidorAsignado() instanceof Carro) {
+                    } else if (rep instanceof Carro) {
                         ingresosCarros += p.getCosto();
+                    } else if (rep instanceof Dron) {
+                        ingresosDrones += p.getCosto();
                     }
                     break;
                 case CANCELADO:
@@ -212,9 +204,6 @@ public class DomiService {
             }
         }
 
-
-        // Buscar al repartidor estrella (mejor promedio con al menos 1 calificación)
-        // Para buscar al repartidor estrella
         Repartidor estrella = null;
         double mejorPromedio = -1;
 
@@ -240,6 +229,7 @@ public class DomiService {
         System.out.println("  * Bicis  : $" + Math.round(ingresosBicis));
         System.out.println("  * Motos  : $" + Math.round(ingresosMotos));
         System.out.println("  * Carros : $" + Math.round(ingresosCarros));
+        System.out.println("  * Drones : $" + Math.round(ingresosDrones));
         System.out.println("----------------------------------");
         if (estrella != null) {
             System.out.printf(java.util.Locale.US, "Repartidor estrella: %s (Promedio: %.1f ⭐ con %d calificaciones)\n",
@@ -249,35 +239,6 @@ public class DomiService {
         }
         System.out.println("==================================");
     }
-            double promedio = r.getPromedio(); // Se usa el metodo que ya tiene la interfaz Calificable
-
-            if (promedio > mejorPromedio && promedio > 0) {
-                mejorPromedio = promedio;
-                estrella = r;
-            }
-        }
-
-        // Imprimir el reporte completo en la consola
-        System.out.println("=== CIERRE DEL DÍA ===");
-        System.out.println("Total de pedidos: " + totalPedidos);
-        System.out.println("- Entregados: " + entregados);
-        System.out.println("- Cancelados: " + cancelados);
-        System.out.println("- En camino: " + enCamino);
-        System.out.println("Ingresos totales: $" + ingresosTotales);
-        System.out.println("  - Bicis: $" + ingresosBicis);
-        System.out.println("  - Motos: $" + ingresosMotos);
-        System.out.println("  - Carros: $" + ingresosCarros);
-
-        // Imprimir el resultado del repartidor estrella
-        if (estrella != null) {
-            System.out.println("Repartidor estrella: " + estrella.getNombre() + " (Promedio: " + mejorPromedio + ")");
-        } else {
-            System.out.println("Repartidor estrella: Aún no hay repartidores calificados.");
-        }
-    }
-
-    // ===== FIN PASO 4 =====
-
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
     public double distanciaDe(String barrio) { return distancias.get(barrio); }
@@ -293,8 +254,3 @@ public class DomiService {
     public HashMap<String, Cliente> getClientes() { return clientes; }
 
 }
-
-
-
-}
-
