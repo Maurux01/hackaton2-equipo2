@@ -93,7 +93,46 @@ public class DomiService {
         return pedido;
     }
 
+    // ===== PASO 4 (Valentina): entregar, cancelar y regla de eliminar cliente =====
+    private Pedido buscarPedido(int numero) {
+        for (Pedido p : pedidos) {
+            if (p.getNumero() == numero) {
+                return p;
+            }
+        }
+        throw new IllegalArgumentException("No existe un pedido con el número " + numero);
+    }
 
+    public void entregarPedido(int numero) {
+        Pedido pedido = buscarPedido(numero);
+        if (pedido.getEstado() != EstadoPedido.EN_CAMINO) {
+            throw new IllegalArgumentException(
+                    "No se puede entregar: el pedido está " + pedido.getEstado());
+        }
+        pedido.setEstado(EstadoPedido.ENTREGADO);
+        pedido.getRepartidor().setDisponible(true);
+    }
+
+    public void cancelarPedido(int numero) {
+        Pedido pedido = buscarPedido(numero);
+        if (pedido.getEstado() != EstadoPedido.EN_CAMINO) {
+            throw new IllegalArgumentException(
+                    "No se puede cancelar: el pedido está " + pedido.getEstado());
+        }
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        pedido.getRepartidor().setDisponible(true);
+    }
+
+    public boolean clienteTienePedidoEnCamino(String cedula) {
+        for (Pedido p : pedidos) {
+            if (p.getCliente().getCedula().equals(cedula)
+                    && p.getEstado() == EstadoPedido.EN_CAMINO) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // ===== FIN PASO 4 =====
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
     public double distanciaDe(String barrio) { return distancias.get(barrio); }
