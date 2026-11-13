@@ -132,6 +132,16 @@ public class DomiService {
         }
         return false;
     }
+    public void eliminarCliente(String cedula) {
+        if (!clientes.containsKey(cedula)) {
+            throw new IllegalArgumentException("No existe un cliente con esa cédula.");
+        }
+        if (clienteTienePedidoEnCamino(cedula)) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar: el cliente tiene un pedido EN_CAMINO.");
+        }
+        clientes.remove(cedula);
+    }
     // ===== FIN PASO 4 =====
 
     public boolean tieneCobertura(String barrio) { return barrios.contains(barrio); }
